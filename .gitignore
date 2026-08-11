@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+
+# Virtual env
+.venv/
+venv/
+env/
+minivllm/
+.python-version
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test / cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Model weights / checkpoints (每個階段自己訓練或下載的權重，不進版控)
+*.pt
+*.pth
+*.safetensors
+checkpoints/
+*.ckpt
+
+# Logs / benchmark 輸出
+*.log
+logs/
+runs/
+benchmark_results/

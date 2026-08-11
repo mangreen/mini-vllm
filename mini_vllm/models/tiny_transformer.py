@@ -142,7 +142,12 @@ class CausalSelfAttention(nn.Module):
         # x: [B, T, hidden_dim]
         B, T, C = x.shape
 
+        # 💥 重點 1：對「長度為 T 的所有 token」重新投影出 Q, K, V 矩陣
         # 投影成 Q/K/V，並拆成多頭
+        # ex. 假設 B=2, T=3, hidden_dim=4, n_heads=2，則：
+        # qkv_proj: [2, 3, 12] (B, T, 3*hidden_dim)
+        # split: q/k/v: [2, 3, 4] (B, T, hidden_dim)
+        # 拆成多頭: [2, 3, 4] -> view -> [2, 3, 2, 2] (B, T, n_heads, head_dim) -> transpose -> [2, 2, 3, 2] (B, n_heads, T, head_dim)
         qkv = self.qkv_proj(x)  # [B, T, 3*C]
         q, k, v = qkv.split(C, dim=-1)  # 各自 [B, T, C]
 
@@ -151,7 +156,10 @@ class CausalSelfAttention(nn.Module):
         k = k.view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
         v = v.view(B, T, self.n_heads, self.head_dim).transpose(1, 2)
 
+        # 💥 重點 2：計算 T x T 的所有注意力分數 (q @ k.T)
         # attention score: [B, n_heads, T, T]
+        # 這裡的 attn_scores 是每個 token 對其他 token 的注意力分數矩陣。
+        # 這裡會算第 1 個字對第 1 個字、第 2 個字對第 1~2 個字... 全部重算！
         attn_scores = (q @ k.transpose(-2, -1)) / math.sqrt(self.head_dim)
 
         # causal mask：第 i 個 token 只能看到 <= i 的 token
@@ -324,7 +332,10 @@ class TinyTransformer(nn.Module):
                 f"輸入長度 {T} 超過 max_seq_len {self.config.max_seq_len}"
             )
 
+        # 💥 這裡：不管舊 token 算過幾次，全部重新算 Embedding！
         # 位置編號 [0, 1, 2, ..., T-1]，並加上 batch 維度
+        # ex. T=3 -> positions: [0, 1, 2] -> unsqueeze(0) -> [1, 3]
+        # 這裡使用 unsqueeze(0) 是為了讓 positions 的形狀與 input_ids 對齊，方便後續的加法運算。
         positions = torch.arange(T, device=input_ids.device).unsqueeze(0)  # [1, T]
         x = self.token_emb(input_ids) + self.pos_emb(positions)  # [B, T, C]
 

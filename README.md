@@ -10,9 +10,22 @@
 - 每個 branch 完成後合併回 `main`，並在 `docs/` 底下留一份該階段的學習筆記 + 架構流程圖。
 - `.gitignore` 已排除虛擬環境、模型權重、log、cache 等不需要進版控的檔案。
 
+## 目錄結構
+
+```bash
+mini-vllm/
+├── docs/               # 每階段的學習重點、說明、架構流程圖（mermaid）
+├── mini_vllm/
+│   ├── models/         # 自製迷你 Transformer
+│   └── ...             # 後續階段會逐步加入 engine/、layers/
+├── examples/            # 可直接執行的示範腳本
+├── tests/              # pytest 單元測試
+└── requirements.txt
+```
+
 ## 目前進度
 
-- [] Stage 0：樸素 baseline（無 KV cache 的 for-loop 生成）
+- [x] Stage 0：樸素 baseline（無 KV cache 的 for-loop 生成）— branch `stage-0-baseline`
 - [ ] Stage 1：手刻 KV Cache
 - [ ] Stage 2：PagedAttention（Block-based KV Cache）
 - [ ] Stage 3：Continuous Batching + Scheduler
@@ -26,3 +39,12 @@
 ```bash
 pip install -r requirements.txt
 ```
+
+## 執行 Stage 0
+
+```bash
+python examples/baseline_generate.py
+pytest tests/
+```
+
+詳細說明見 [`docs/stage0-baseline.md`](docs/stage0-baseline.md)。

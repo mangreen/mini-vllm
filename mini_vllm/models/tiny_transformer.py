@@ -297,6 +297,7 @@ class TinyTransformer(nn.Module):
         self.pos_emb = nn.Embedding(config.max_seq_len, config.hidden_dim) # Positional Embedding
         
         # Transformer block 堆疊
+        # 這裡使用 nn.ModuleList 將多個 TransformerBlock 包裝成一個模組列表，方便在 forward 中依序呼叫每一層。
         self.blocks = nn.ModuleList(
             [TransformerBlock(config) for _ in range(config.n_layers)]
         )

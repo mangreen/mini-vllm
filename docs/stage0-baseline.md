@@ -57,7 +57,7 @@ flowchart TD
     E --> F["F: 把新 token append 到 input_ids"]
     F --> G{"G: 達到 max_new_tokens？"}
     G -->|否| B
-    G -->|是| H["結束，回傳完整序列"]
+    G -->|是| H["H: 結束，回傳完整序列"]
 ```
 
 **這張圖裡最重要的一格是 C**：每次繞回 B 再進 C 時，

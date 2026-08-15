@@ -18,7 +18,8 @@ mini-vllm/
 ├── mini_vllm/
 │   ├── models/         # 自製迷你 Transformer
 │   ├── layers/         # 實現極致優化、鍵值快取（KV Cache）、支援分頁（Paging）的自注意力機制運算核心
-│   └── ...             # 後續階段會逐步加入 engine/
+│   ├── engine/         # 實現整個推理生命週期的控管、請求調度與記憶體管理
+│   └── ...             
 ├── examples/           # 可直接執行的示範腳本
 ├── tests/              # pytest 單元測試
 └── requirements.txt
@@ -28,7 +29,7 @@ mini-vllm/
 
 - [x] Stage 0：樸素 baseline（無 KV cache 的 for-loop 生成）— branch `stage-0-baseline`
 - [x] Stage 1：手刻 KV Cache — branch `stage-1-kv-cache`
-- [ ] Stage 2：PagedAttention（Block-based KV Cache）
+- [x] Stage 2：PagedAttention（Block-based KV Cache）— branch `stage-2-paged-attention`
 - [ ] Stage 3：Continuous Batching + Scheduler
 - [ ] Stage 4：Prefix Caching
 - [ ] Stage 5：Chunked Prefill
@@ -48,11 +49,18 @@ python examples/baseline_generate.py
 pytest tests/
 ```
 
-詳細說明見 [`docs/stage0-baseline.md`](docs/stage0-baseline.md)、[`docs/stage1-kv-cache.md`](docs/stage1-kv-cache.md)。
+詳細說明見 [`docs/stage0-baseline.md`](docs/stage0-baseline.md)、[`docs/stage1-kv-cache.md`](docs/stage1-kv-cache.md)、[`docs/stage2-paged-attention.md`](docs/stage2-paged-attention.md)。
 
 ## 執行 Stage 1
 
 ```bash
 python examples/kv_cache_generate.py
+pytest tests/ -v
+```
+
+## 執行 Stage 2
+
+```bash
+python examples/paged_attention_generate.py
 pytest tests/ -v
 ```

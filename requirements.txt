@@ -1,3 +1,4 @@
 torch>=2.0,<2.3   # Intel Mac 的 pip wheel 大約停在 2.2.x，見 README
 numpy<2           # 避免跟舊版 torch 的 NumPy 1.x ABI 衝突
 pytest>=7.0
+xxhash>=3.0       # Stage 4：prefix caching 的 block 內容 hash

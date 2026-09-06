@@ -62,11 +62,26 @@ class Sequence:
         """還有沒有『沒被算進 cache』的 token 需要處理。"""
         return len(self.all_token_ids) > self.num_computed_tokens
 
-    def next_forward_input(self) -> tuple[torch.Tensor, int]:
+    @property
+    def pending_token_count(self) -> int:
+        """
+        還有幾個 token 沒被反映進 cache（Stage 5 新增）。
+
+        這個數字本身就能拿來分辨「這個序列現在算是在 decode，還是
+        還在（chunked）prefill」，完全不需要另外記一個狀態欄位：
+          - `pending_token_count == 1`：只剩『最新生成的那 1 個
+            token』沒處理，這是正常的 decode 節奏。
+          - `pending_token_count > 1`：還有一大段內容沒處理完
+            （初次 prefill，或被搶佔後的 recompute），這正是
+            Chunked Prefill 要切成小塊慢慢做的部分。
+        """
+        return len(self.all_token_ids) - self.num_computed_tokens
+
+    def next_forward_input(self, max_tokens: int | None = None) -> tuple[torch.Tensor, int]:
         """
         回傳這次該送進模型的 (input_ids, start_pos)。
 
-        這是本階段一個關鍵的統一設計：不管是「序列第一次被排進
+        這是 Stage 3 一個關鍵的統一設計：不管是「序列第一次被排進
         running、要做初次 prefill」「序列已經在跑、正常 decode
         （每次只有 1 個新 token）」，還是「序列被搶佔後重新排進
         running、要 recompute 整個 prompt+已生成內容」，全部都可以
@@ -82,8 +97,17 @@ class Sequence:
           - 被搶佔重來時，這段是 prompt + 已生成內容的全部（recompute）。
         呼叫端（Scheduler / 生成迴圈）完全不需要為這三種情況各寫一份
         邏輯，統一呼叫這個方法就好。
+
+        `max_tokens`（Stage 5 新增）：如果這一步只想處理「還沒算完的
+        那一段」裡的一部分，可以用這個參數截斷——這就是 Chunked
+        Prefill 需要的能力：一個很長的 prefill，不必一次整段塞進
+        模型，可以分成好幾次呼叫，每次只截一小段。預設 `None`
+        代表不截斷，維持 Stage 3/4 原本「一次處理到底」的行為，
+        完全向後相容。
         """
         ids = self.all_token_ids[self.num_computed_tokens :]
+        if max_tokens is not None:
+            ids = ids[:max_tokens]
         start_pos = self.num_computed_tokens
         return torch.tensor([ids], dtype=torch.long), start_pos
 

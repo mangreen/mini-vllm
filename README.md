@@ -32,7 +32,7 @@ mini-vllm/
 - [x] Stage 2：PagedAttention（Block-based KV Cache）— branch `stage-2-paged-attention`
 - [x] Stage 3：Continuous Batching + Scheduler — branch `stage-3-continuous-batching`
 - [x] Stage 4：Prefix Caching — branch `stage-4-prefix-caching`
-- [ ] Stage 5：Chunked Prefill
+- [x] Stage 5：Chunked Prefill — branch `stage-5-chunked-prefill`
 - [ ] Stage 6：GPU 加速層（概念閱讀 / 選用雲端 GPU）
 - [ ] Stage 7：完整引擎 + API
 
@@ -49,7 +49,7 @@ python examples/baseline_generate.py
 pytest tests/
 ```
 
-詳細說明見 [`docs/stage0-baseline.md`](docs/stage0-baseline.md)、[`docs/stage1-kv-cache.md`](docs/stage1-kv-cache.md)、[`docs/stage2-paged-attention.md`](docs/stage2-paged-attention.md)、[`docs/stage3-continuous-batching.md`](docs/stage3-continuous-batching.md)、[`docs/stage4-prefix-caching.md`](docs/stage4-prefix-caching.md)。
+詳細說明見 [`docs/stage0-baseline.md`](docs/stage0-baseline.md)、[`docs/stage1-kv-cache.md`](docs/stage1-kv-cache.md)、[`docs/stage2-paged-attention.md`](docs/stage2-paged-attention.md)、[`docs/stage3-continuous-batching.md`](docs/stage3-continuous-batching.md)、[`docs/stage4-prefix-caching.md`](docs/stage4-prefix-caching.md)、[`docs/stage5-chunked-prefill.md`](docs/stage5-chunked-prefill.md)。
 
 ## 執行 Stage 1
 
@@ -76,5 +76,12 @@ pytest tests/ -v
 
 ```bash
 python examples/prefix_caching_generate.py
+pytest tests/ -v
+```
+
+## 執行 Stage 5
+
+```bash
+python examples/chunked_prefill_generate.py
 pytest tests/ -v
 ```
